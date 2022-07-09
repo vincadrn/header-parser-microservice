@@ -3,11 +3,12 @@
 
 // init project
 require('dotenv').config();
-var express = require('express');
-var app = express();
+const express = require('express');
+const app = express();
+const requestIp = require('request-ip');
 
 // enable CORS (https://en.wikipedia.org/wiki/Cross-origin_resource_sharing)
-// so that your API is remotely testable by FCC 
+// so that the API is remotely testable by FCC 
 var cors = require('cors');
 app.use(cors({optionsSuccessStatus: 200}));  // some legacy browsers choke on 204
 
@@ -15,19 +16,25 @@ app.use(cors({optionsSuccessStatus: 200}));  // some legacy browsers choke on 20
 app.use(express.static('public'));
 
 // http://expressjs.com/en/starter/basic-routing.html
-app.get("/", function (req, res) {
+app.get("/", (req, res) => {
   res.sendFile(__dirname + '/views/index.html');
 });
 
 
-// your first API endpoint... 
-app.get("/api/hello", function (req, res) {
+// first API endpoint
+app.get("/api/hello", (req, res) => {
   res.json({greeting: 'hello API'});
+});
+
+// main problem
+app.get("/api/whoami", (req, res) => {
+  var clientIp = requestIp.getClientIp(req);
+  res.json({ipaddress: clientIp, language: req.headers['accept-language'], software: req.headers['user-agent']});
 });
 
 
 
-// listen for requests :)
+// listen for requests
 var listener = app.listen(process.env.PORT || 3000, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
